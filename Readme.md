@@ -85,8 +85,8 @@ Visa statistik om matcher och tävlande hamstrar.
 - top 5 hamstrar som vunnit mest
 - top 5 hamstrar som förlorat mest
 
-### Ladda upp ny hamsterbild
-Här ska det finnas ett formulär för att fylla i all information om en tävlande hamster som databasen behöver. All information ska *valideras* så att den är *informativ och användarvänlig*. Man behöver inte ladda upp en riktig bild i grundversionen.
+### Ladda upp ny hamster
+Här ska det finnas ett formulär för att fylla i all information om en tävlande hamster som databasen behöver. All information ska *valideras* så att den är *informativ och användarvänlig*. Man behöver inte kunna ladda upp en riktig bild i grundversionen.
 
 ---
 
@@ -105,16 +105,27 @@ Bläddra igenom alla hamstrar som finns i databasen.
 #### Rättvisare slumpning
 Välj bland de hamstrar som haft minst antal matcher, när appen ska slumpa fram hamstrar.
 
-
 #### Ladda upp bild
-Formuläret för att lägga till ny hamster ska ... riktig bild...
+Formuläret för att lägga till ny hamster ska kunna ladda upp riktiga bilder.
 
 #### Chuck Norris level
 Hamster-VM!! Välj ut 8 hamstrar som tävlar 2-3 gånger mot varandra. De 4 som vunnit flest gånger går vidare till semifinal. Vinnarna möter sedan varandra i finalen. (Man kan fortsätta med gruppspel, eller förenkla och bara köra semifinal + final.)
 
 ---
 
-## Getting started / publicering / deploy
+## Getting started
+Ett förslag på hur man kan lägga upp projektet:
+
+1. gör en skiss - Figma, HTML + CSS
+2. lägg in skissen i en React-komponent (bara JSX)
+3. använd *props* för att skicka (påhittad) data till komponenterna
+4. lägg till *state* och *events*
+5. lägg till riktig data - skicka GET och POST *reqests* till API:et
+
+Sedan får man upprepa detta för alla olika vyer, tills appen är klar. Försök att jobba mot en **MVP** (minimum viable product) och vänta till senare i projektet med att ta in sådant som inte är lika viktigt. Försök också att jobba med en *feature* i taget. Testa gärna appen på dina klasskamrater flera gånger under projektet. Feedback kan vara oerhört värdefull.
+
+
+## Publicering / deploy
 *Den här guiden förutsätter att du har laddat upp databasen med Firebase/Firestore och kan anropa den från Express-servern.*
 
 1. Börja med att skapa ett nytt projekt:
