@@ -206,9 +206,17 @@ När releasen är byggd kommer Heroku att starta **web** appen genom att köra f
 Klicka på `Open app` för att testköra. Håll tummarna!
 
 ---
-**9.** Express-servern servar både frontend och backend. När du skickar GET/POST request med AJAX så är det till samma webbserver.
+**9.** Express-servern servar både frontend och backend. När du skickar GET/POST request med AJAX så är det till samma webbserver. Men man vill ibland använda olika URL till *development* och *production*. create-react-app skapar en variabel, vars värde beror på om vi använt `npm run start` (utvecklingsversionen) eller `npm run build` (production).
 ```javascript
-// Vi behöver inte ange HTTP eftersom AJAX stannar kvar på samma server
-const response = await fetch('/api/hamsters');
+let baseUrl;
+if( process.env.NODE_ENV === 'production' ) {
+	// Vi behöver inte ange HTTP eftersom AJAX stannar kvar på samma server
+	baseUrl = '/api';
+}
+else {  // 'development'
+	// Använd portnumret från din serverfil, steg 3a
+	baseUrl = 'http://localhost:1234/api';
+}
+const response = await fetch(baseUrl + '/hamsters');
 const allTheHamsters = await response.json();
 ```
