@@ -126,51 +126,89 @@ Sedan får man upprepa detta för alla olika vyer, tills appen är klar. Försö
 
 
 ## Publicering / deploy
-*Den här guiden förutsätter att du har laddat upp databasen med Firebase/Firestore och kan anropa den från Express-servern.*
+*Den här guiden förutsätter att du antingen har laddat upp databasen med Firebase/Firestore och kan anropa den från Express-servern. Du behöver inte göra något för att databasen ska fungera.*
 
-1. Börja med att skapa ett nytt projekt:
+**1.** Börja med att skapa ett nytt projekt. Vi använder frontend-projektet som bas eftersom create-react-app automatiskt skapar ett nytt repository med bra inställningar.
 ```bash
 npx create-react-app ditt-app-namn
 ```
-2. Nu ska ditt lokala repo kombineras med ditt API-projekt. Skapa en mapp med namnet `server/` *inuti* frontend-projektet. Kopiera ditt API-projekt till server-mappen. (Flytta över det som finns i `server/package.json` till `package.json`.)
-
-3. Skapa ett nytt repository på GitHub och koppla ihop det med ditt lokala repo.
-
-3. Lägg till ett start-script i package.json så Heroku vet hur den ska starta din server:
-```javascript
-"scripts": {
-    "start": "node server/server.js"
-}
-```
-3. En Heroku-app kan inte använda alla portar. Uppdatera `server.js` så att Heroku kan ge appen rätt port:
-```javascript
-const port = 2048;   // FEL
-const port = process.env.PORT || 2048;   // RÄTT
-```
-4. Heroku är en molntjänst som vi kan använda gratis för att publicera (*deploy*) små Node-appar på nätet. Man kan publicera via ett Command Line Interface eller via GitHub. Vi använder GitHub. Gå till [Heroku.com](https://heroku.com) och skapa ett konto med hjälp av GitHub.
-
-5. Gå till https://dashboard.heroku.com/apps och välj menyn New - Create New App. Hitta på ett namn på appen, t.ex. "Hamsterwars123". (Det måste vara unikt.) Välj "Europe" som region och klicka på "Create app".
-
-6. I rutan som heter "Deployment method" väljer du "Connect to GitHub". Skriv in namnet på ditt GitHub-repo, klicka på "Search" och "Connect".
-
-7. Klicka på "Deploy branch" för att publicera innehållet i master-branchen till din Heroku-domän. Kryssa i "Automatic deploys from master" om du vill att det ska göras automatiskt varje gång du committar till master. (rekommenderas)
-
-8. Nu kan du klicka på "Open App" för att testköra din app. Men än så länge är bara API:et publicerat...
-
-9. Fortsättning följer...
-
-
+---
+**2.** Nu ska du kopiera in ditt API-projekt i frontend-projektet. Skapa en mapp med namnet `server/` och lägg backend-filerna där. *Obs! Flytta över det som finns i* `server/package.json` *till* `./package.json`.
 Så här kan din mappstruktur se ut:
 ```text
 |- .git/
 |- .gitignore
 |- package.json
-|- src/
-|- build/         <-- skapas när du bygger frontend-appen
-|- server/
-    |- package.json      <-- ta bort  (ska bara finnas i roten)
+|- Procfile              <-- skapa den här, se steg 6
+|- src/                  <-- här hamnar React-appen
+|- build/                <-- skapas när du bygger frontend-appen med "npm run build"
+|- server/               <-- skapa den här!
+    |- package.json      <-- ta bort  (flytta innehållet till andra package.json)
     |- .git/             <-- ta bort
     |- .gitignore        <-- ta bort
     |- server.js
-    |- modules/          <-- organiserade API-projektet
+    |- ...
+```
+
+Resten av guiden förutsätter att filen som du startar servern med heter `server.js`.
+
+---
+**3a.** Heroku bestämmer vilken port som Express ska använda. Uppdatera `server.js` så att den använder rätt port.
+```javascript
+// Använd en variabel till portnumret
+const port = 2048;   // FEL
+const port = process.env.PORT || 2048;   // RÄTT
+
+// Använd static middleware för att serva de byggda frontend-app-filerna
+server.use(express.static(__dirname + '/../build'));
+
+// Glöm inte att starta servern med rätt portnummer
+// Man kan se allt som skrivs ut med console.log från Heroku webbsidan
+server.listen(serverPort, () => console.log('Server is listening on port ' + serverPort));
+
+```
+---
+**3b.** För att det inte ska bli konflikter mellan routing i frontend och backend, kan du ändra alla backend-routes så att de börjar med `/api`:
+```text
+/hamsters --> /api/hamsters
+/hamsters/:id --> /api/hamsters/:id
+osv.
+```
+
+---
+**4.** Lägg till och committa backend-filerna till ditt lokala repo.
+
+---
+**5.** Skapa ett nytt repository på GitHub för hela projektet. När du skapat ett repo visar GitHub vad man ska skriva *i terminalen* för att koppla ihop ditt repo på GitHub med ditt lokala repo. Det bör se ut så här:
+```bash
+git remote add origin https://github.com/ditt-användarnamn/ditt-repo.git
+git push -u origin master
+```
+Ladda om sidan på GitHub för att kontrollera att filerna har laddats upp.
+
+---
+**6.** Nu ska vi förbereda repot så att Heroku vet hur det ska göra för att bygga och publicera appen. (*build och deploy*) Skapa en fil med namnet `Procfile` (stort P, ingen filändelse, inte ens .txt) i projektets root med följande innehåll:
+```text
+release: npm run build
+web: node server/server.js
+```
+
+Detta betyder att när Heroku ska publicera en ny **release** av appen, så ska den börja med att bygga frontend-appen. (Heroku kör automatiskt `npm install` innan den kör `npm run build`.) Detta kommer att skapa filer i mappen `build/`.
+
+När releasen är byggd kommer Heroku att starta **web** appen genom att köra filen `server/server.js`.
+
+---
+**7.** Skapa ett konto på [Heroku](https://heroku.com/). Klicka på `New -> Create new app`.
+
+---
+**8.** Koppla ihop Heroku med GitHub. Skriv in namnet på ditt GitHub-repo. Slå på *Automatic deploy from master*. Från och med nu, varje gång du pushar en ny version till GitHub, så kommer Heroku att *bygga och publicera* den. Avsluta med att klicka på *Deploy branch* för att publicera direkt.
+
+Klicka på `Open app` för att testköra. Håll tummarna!
+
+---
+**9.** Express-servern servar både frontend och backend. När du skickar GET/POST request med AJAX så är det till samma webbserver.
+```javascript
+// Vi behöver inte ange HTTP eftersom AJAX stannar kvar på samma server
+const response = await fetch('/api/hamsters');
+const allTheHamsters = await response.json();
 ```
