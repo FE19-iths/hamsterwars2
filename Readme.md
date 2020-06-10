@@ -133,7 +133,7 @@ Sedan får man upprepa detta för alla olika vyer, tills appen är klar. Försö
 npx create-react-app ditt-app-namn
 ```
 ---
-**2.** Nu ska du kopiera in ditt API-projekt i frontend-projektet. Skapa en mapp med namnet `server/` och lägg backend-filerna där. *Obs! Flytta över det som finns i* `server/package.json` *till* `./package.json`.
+**2.** Nu ska du kopiera in ditt API-projekt i frontend-projektet. Skapa en mapp med namnet `server/` och lägg backend-filerna där. *Obs! Flytta över det som finns i* `server/package.json` *till* `./package.json`. (Om du glömmer detta så kommer server-mappen att få en pil på sig på GitHub och inte gå att klicka på.)
 Så här kan din mappstruktur se ut:
 ```text
 |- .git/
@@ -160,6 +160,7 @@ const port = 2048;   // FEL
 const port = process.env.PORT || 2048;   // RÄTT
 
 // Använd static middleware för att serva de byggda frontend-app-filerna
+// Det kan se annorlunda ut om man använder express-router
 server.use(express.static(__dirname + '/../build'));
 
 // Glöm inte att starta servern med rätt portnummer
@@ -206,7 +207,20 @@ När releasen är byggd kommer Heroku att starta **web** appen genom att köra f
 Klicka på `Open app` för att testköra. Håll tummarna!
 
 ---
-**9.** Express-servern servar både frontend och backend. När du skickar GET/POST request med AJAX så är det till samma webbserver. Men man vill ibland använda olika URL till *development* och *production*. create-react-app skapar en variabel, vars värde beror på om vi använt `npm run start` (utvecklingsversionen) eller `npm run build` (production).
+**9.** Express-servern servar både frontend och backend. När du skickar GET/POST request med AJAX så är det till samma webbserver. Men man vill ibland använda olika URL till *development* och *production*. Enklaste sättet att lösa detta är att lägga till en *proxy* i package.json. Den används bara när man kör `npm run start` lokalt.
+
+Lägg till en rad med ordet `proxy` och URL till din lokala webbserver, efter `scripts`:
+```json
+"scripts": {
+  "start": "react-scripts start",
+  "build": "react-scripts build",
+  "test": "react-scripts test",
+  "eject": "react-scripts eject"
+},
+"proxy": "http://localhost:1234",   <- lägg till den här
+```
+
+Alternativ lösning: create-react-app skapar en variabel, vars värde beror på om vi använt `npm run start` (utvecklingsversionen) eller `npm run build` (production). Du kan bli tvungen att lägga till stöd för CORS i servern.
 ```javascript
 let baseUrl;
 if( process.env.NODE_ENV === 'production' ) {
